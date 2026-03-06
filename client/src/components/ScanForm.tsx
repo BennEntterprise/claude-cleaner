@@ -6,7 +6,9 @@ interface ScanFormProps {
 }
 
 export function ScanForm({ onScan, disabled }: ScanFormProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(
+    "/Users, /Users/kyle, /Users/kyle/code, /Users/kyle/Desktop",
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -20,6 +20,7 @@
 
 ### Strategy
 - **`client/src/App.tsx`** — Uses `ts-pattern` for exhaustive pattern matching on the scan state, selecting different rendering strategies based on the current state variant.
+- **`client/src/hooks/useProjectFilter.ts`** — `PREDICATES` record maps each `FilterKey` to a predicate function, enabling runtime strategy selection for filtering projects by different criteria.
 
 ### Template Method
 - **`server/src/services/scanner.ts`** — `scanProject()` follows a fixed sequence of steps (check dir, check file, read settings, read content, count sessions) applied uniformly to every discovered project.

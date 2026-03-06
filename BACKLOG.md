@@ -9,6 +9,7 @@
 - [x] React client with scan form, stats bar, project list, expandable detail
 - [x] Vite proxy to backend
 - [x] ts-pattern for exhaustive state matching in UI
+- [x] Filter/search within scan results (clickable stat cards + badge chips toggle AND filters)
 
 ## In Progress
 
@@ -18,7 +19,6 @@
 - [ ] Diff view: compare project CLAUDE.md against global CLAUDE.md
 - [ ] Permission frequency analysis: show which permissions are most commonly allowed/denied across projects
 - [ ] Deep scan mode: recurse beyond 1 level for nested project structures
-- [ ] Filter/search within scan results
 - [ ] Export scan results as JSON
 - [ ] Session metadata display: show last-used dates from session .jsonl files
 - [ ] Bulk operations: apply a settings change across multiple projects at once
