@@ -476,3 +476,44 @@ body {
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+.permission-freq-group {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.permission-freq-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 4px;
+}
+
+.permission-freq-group-toggle:hover {
+  background: #1c2129;
+}
+
+.permission-freq-group-toggle code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
+  font-weight: 600;
+}
+
+.permission-freq-group-allow .permission-freq-group-toggle code {
+  color: var(--success);
+}
+
+.permission-freq-group-deny .permission-freq-group-toggle code {
+  color: var(--danger);
+}
+
+.permission-freq-row-nested {
+  padding-left: 1.5rem;
+}
