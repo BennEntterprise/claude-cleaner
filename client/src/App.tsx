@@ -2,7 +2,6 @@ import { match } from "ts-pattern";
 import type { ScanResponse } from "shared/schemas.js";
 import { useScan } from "./hooks/useScan";
 import { useProjectFilter } from "./hooks/useProjectFilter";
-import { usePermissionFrequency } from "./hooks/usePermissionFrequency";
 import { ScanForm } from "./components/ScanForm";
 import { GlobalConfig } from "./components/GlobalConfig";
 import { StatsBar } from "./components/StatsBar";
@@ -13,7 +12,6 @@ import { PermissionFrequency } from "./components/PermissionFrequency";
 function FilteredResults({ data }: { data: ScanResponse }) {
   const { activeFilters, filtered, filteredStats, isFiltering, toggle, clearAll } =
     useProjectFilter(data.projects, data.stats);
-  const permissionFrequency = usePermissionFrequency(filtered);
 
   return (
     <>
@@ -25,7 +23,7 @@ function FilteredResults({ data }: { data: ScanResponse }) {
         onToggle={toggle}
         onClearAll={clearAll}
       />
-      <PermissionFrequency frequency={permissionFrequency} />
+      <PermissionFrequency projects={filtered} />
       <FilterBar
         activeFilters={activeFilters}
         onRemove={toggle}

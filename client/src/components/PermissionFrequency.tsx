@@ -1,12 +1,14 @@
 import { useState } from "react";
-import type {
-  PermissionFrequencyResult,
-  PermissionGroup,
-  PermissionKind,
+import type { ProjectInfo } from "shared/schemas.js";
+import {
+  usePermissionFrequency,
+  type PermissionTreeNode,
+  type PermissionEntry,
+  type PermissionKind,
 } from "../hooks/usePermissionFrequency";
 
 interface PermissionFrequencyProps {
-  frequency: PermissionFrequencyResult;
+  projects: ProjectInfo[];
 }
 
 const SECTION_LABELS: Record<PermissionKind, string> = {
@@ -15,62 +17,92 @@ const SECTION_LABELS: Record<PermissionKind, string> = {
   ask: "Ask",
 };
 
-function GroupSection({
-  group,
-  variant,
+function EntryRow({
+  entry,
+  indent,
 }: {
-  group: PermissionGroup;
+  entry: PermissionEntry;
+  indent: number;
+}) {
+  return (
+    <div
+      className="permission-freq-row"
+      style={{ paddingLeft: `${0.5 + indent}rem` }}
+    >
+      <code>{entry.permission}</code>
+      <span
+        className="permission-freq-count tooltip-trigger"
+        data-tooltip={entry.projectNames.join("\n")}
+      >
+        {entry.count} {entry.count === 1 ? "project" : "projects"}
+      </span>
+    </div>
+  );
+}
+
+function TreeNode({
+  node,
+  variant,
+  indent,
+}: {
+  node: PermissionTreeNode;
   variant: PermissionKind;
+  indent: number;
 }) {
   const [open, setOpen] = useState(false);
-  const isSingle = group.entries.length === 1;
+  const isSingleLeaf =
+    node.children.length === 0 && node.entries.length === 1;
 
-  if (isSingle) {
-    const entry = group.entries[0];
-    return (
-      <div className="permission-freq-row">
-        <code>{entry.permission}</code>
-        <span className="permission-freq-count tooltip-trigger" data-tooltip={entry.projectNames.join("\n")}>
-          {entry.count} {entry.count === 1 ? "project" : "projects"}
-        </span>
-      </div>
-    );
+  if (isSingleLeaf) {
+    return <EntryRow entry={node.entries[0]} indent={indent} />;
   }
 
   return (
     <div className={`permission-freq-group permission-freq-group-${variant}`}>
       <button
         className="permission-freq-group-toggle"
+        style={{ paddingLeft: `${0.5 + indent}rem` }}
         onClick={() => setOpen(!open)}
       >
         <span className="permission-freq-arrow">{open ? "▼" : "▶"}</span>
-        <code>{group.tool}</code>
+        <code>{node.label}</code>
         <span className="permission-freq-count">
-          {group.entries.length} rules
+          {node.totalEntryCount}{" "}
+          {node.totalEntryCount === 1 ? "rule" : "rules"}
         </span>
       </button>
-      {open &&
-        group.entries.map((entry) => (
-          <div key={entry.permission} className="permission-freq-row permission-freq-row-nested">
-            <code>{entry.permission}</code>
-            <span className="permission-freq-count tooltip-trigger" data-tooltip={entry.projectNames.join("\n")}>
-              {entry.count} {entry.count === 1 ? "project" : "projects"}
-            </span>
-          </div>
-        ))}
+      {open && (
+        <>
+          {node.children.map((child) => (
+            <TreeNode
+              key={child.label}
+              node={child}
+              variant={variant}
+              indent={indent + 1}
+            />
+          ))}
+          {node.entries.map((entry) => (
+            <EntryRow
+              key={entry.permission}
+              entry={entry}
+              indent={indent + 1}
+            />
+          ))}
+        </>
+      )}
     </div>
   );
 }
 
 function PermissionSection({
-  groups,
+  nodes,
   variant,
 }: {
-  groups: PermissionGroup[];
+  nodes: PermissionTreeNode[];
   variant: PermissionKind;
 }) {
   const [open, setOpen] = useState(false);
-  const entryCount = groups.reduce((s, g) => s + g.entries.length, 0);
+  const entryCount = nodes.reduce((s, n) => s + n.totalEntryCount, 0);
 
   return (
     <div className={`permission-freq-section permission-freq-${variant}`}>
@@ -82,20 +114,31 @@ function PermissionSection({
         <h4>{SECTION_LABELS[variant]}</h4>
         <span className="permission-freq-count">{entryCount} rules</span>
       </button>
-      {open && (groups.length > 0
-        ? groups.map((group) => (
-            <GroupSection key={group.tool} group={group} variant={variant} />
+      {open &&
+        (nodes.length > 0 ? (
+          nodes.map((node) => (
+            <TreeNode
+              key={node.label}
+              node={node}
+              variant={variant}
+              indent={0}
+            />
           ))
-        : <span className="permission-freq-empty">None</span>
-      )}
+        ) : (
+          <span className="permission-freq-empty">None</span>
+        ))}
     </div>
   );
 }
 
-export function PermissionFrequency({ frequency }: PermissionFrequencyProps) {
+export function PermissionFrequency({ projects }: PermissionFrequencyProps) {
   const [open, setOpen] = useState(false);
+  const [depth, setDepth] = useState(1);
+  const frequency = usePermissionFrequency(projects, depth);
+
   const totalUnique = (["allow", "deny", "ask"] as const).reduce(
-    (s, k) => s + frequency[k].reduce((gs, g) => gs + g.entries.length, 0),
+    (s, k) =>
+      s + frequency[k].reduce((ns, n) => ns + n.totalEntryCount, 0),
     0,
   );
 
@@ -114,11 +157,31 @@ export function PermissionFrequency({ frequency }: PermissionFrequencyProps) {
         </span>
       </button>
       {open && (
-        <div className="permission-freq-body">
-          <PermissionSection groups={frequency.allow} variant="allow" />
-          <PermissionSection groups={frequency.deny} variant="deny" />
-          <PermissionSection groups={frequency.ask} variant="ask" />
-        </div>
+        <>
+          <div className="permission-freq-depth">
+            <span className="permission-freq-depth-label">Depth</span>
+            <button
+              className="permission-freq-depth-btn"
+              onClick={() => setDepth((d) => Math.max(1, d - 1))}
+              disabled={depth <= 1}
+            >
+              -
+            </button>
+            <span className="permission-freq-depth-value">{depth}</span>
+            <button
+              className="permission-freq-depth-btn"
+              onClick={() => setDepth((d) => Math.min(5, d + 1))}
+              disabled={depth >= 5}
+            >
+              +
+            </button>
+          </div>
+          <div className="permission-freq-body">
+            <PermissionSection nodes={frequency.allow} variant="allow" />
+            <PermissionSection nodes={frequency.deny} variant="deny" />
+            <PermissionSection nodes={frequency.ask} variant="ask" />
+          </div>
+        </>
       )}
     </div>
   );

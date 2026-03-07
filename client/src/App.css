@@ -547,8 +547,53 @@ body {
   color: var(--accent);
 }
 
-.permission-freq-row-nested {
-  padding-left: 1.5rem;
+.permission-freq-depth {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.permission-freq-depth-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.25rem;
+}
+
+.permission-freq-depth-btn {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.permission-freq-depth-btn:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+.permission-freq-depth-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.permission-freq-depth-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 1rem;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
 }
 
 .permission-freq-empty {
