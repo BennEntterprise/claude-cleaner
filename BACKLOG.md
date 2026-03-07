@@ -10,6 +10,7 @@
 - [x] Vite proxy to backend
 - [x] ts-pattern for exhaustive state matching in UI
 - [x] Filter/search within scan results (clickable stat cards + badge chips toggle AND filters)
+- [x] Permission frequency analysis: show which permissions are most commonly allowed/denied across projects
 
 ## In Progress
 
@@ -17,7 +18,6 @@
 
 - [ ] "Lift up" feature: promote repeated project-level settings to user-level config
 - [ ] Diff view: compare project CLAUDE.md against global CLAUDE.md
-- [ ] Permission frequency analysis: show which permissions are most commonly allowed/denied across projects
 - [ ] Deep scan mode: recurse beyond 1 level for nested project structures
 - [ ] Export scan results as JSON
 - [ ] Session metadata display: show last-used dates from session .jsonl files
