@@ -56,10 +56,10 @@ function groupPermissions(
     groups.set(tool, list);
   }
 
-  // Sort entries within each group by count desc, sort groups alphabetically
+  // Sort entries within each group alphabetically, sort groups alphabetically
   return [...groups.entries()]
     .map(([tool, entries]) => {
-      entries.sort((a, b) => b.count - a.count);
+      entries.sort((a, b) => a.permission.localeCompare(b.permission));
       return {
         tool,
         entries,
