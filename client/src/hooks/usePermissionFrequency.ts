@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import type { ProjectInfo } from "shared/schemas.js";
 
+export type PermissionKind = "allow" | "deny" | "ask";
+
 export interface PermissionEntry {
   permission: string;
   count: number;
@@ -12,10 +14,7 @@ export interface PermissionGroup {
   totalCount: number;
 }
 
-export interface PermissionFrequencyResult {
-  allow: PermissionGroup[];
-  deny: PermissionGroup[];
-}
+export type PermissionFrequencyResult = Record<PermissionKind, PermissionGroup[]>;
 
 /** Extract the tool name prefix from a permission string.
  *  - `Bash(npm install:*)` -> `Bash`
@@ -37,7 +36,7 @@ function extractTool(permission: string): string {
 
 function groupPermissions(
   projects: ProjectInfo[],
-  key: "allow" | "deny",
+  key: PermissionKind,
 ): PermissionGroup[] {
   const counts = new Map<string, number>();
   for (const project of projects) {
@@ -57,7 +56,7 @@ function groupPermissions(
     groups.set(tool, list);
   }
 
-  // Sort entries within each group by count desc, then build sorted groups
+  // Sort entries within each group by count desc, sort groups alphabetically
   return [...groups.entries()]
     .map(([tool, entries]) => {
       entries.sort((a, b) => b.count - a.count);
@@ -67,7 +66,7 @@ function groupPermissions(
         totalCount: entries.reduce((sum, e) => sum + e.count, 0),
       };
     })
-    .sort((a, b) => b.totalCount - a.totalCount);
+    .sort((a, b) => a.tool.localeCompare(b.tool));
 }
 
 export function usePermissionFrequency(
@@ -77,6 +76,7 @@ export function usePermissionFrequency(
     () => ({
       allow: groupPermissions(projects, "allow"),
       deny: groupPermissions(projects, "deny"),
+      ask: groupPermissions(projects, "ask"),
     }),
     [projects],
   );

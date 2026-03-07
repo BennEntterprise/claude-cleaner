@@ -12,6 +12,7 @@ export type ScanRequest = z.infer<typeof ScanRequestSchema>;
 export const PermissionsSchema = z.object({
   allow: z.array(z.string()).optional(),
   deny: z.array(z.string()).optional(),
+  ask: z.array(z.string()).optional(),
 });
 export type Permissions = z.infer<typeof PermissionsSchema>;
 

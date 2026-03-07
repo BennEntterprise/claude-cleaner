@@ -431,7 +431,24 @@ body {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
+  margin: 0;
+}
+
+.permission-freq-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.3rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+}
+
+.permission-freq-section-toggle:hover {
+  opacity: 0.8;
 }
 
 .permission-freq-allow h4 {
@@ -440,6 +457,10 @@ body {
 
 .permission-freq-deny h4 {
   color: var(--danger);
+}
+
+.permission-freq-ask h4 {
+  color: var(--accent);
 }
 
 .permission-freq-row {
@@ -458,6 +479,10 @@ body {
   background: #f8514908;
 }
 
+.permission-freq-ask .permission-freq-row {
+  background: #58a6ff08;
+}
+
 .permission-freq-row code {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
   font-size: 0.8rem;
@@ -469,6 +494,10 @@ body {
 
 .permission-freq-deny .permission-freq-row code {
   color: var(--danger);
+}
+
+.permission-freq-ask .permission-freq-row code {
+  color: var(--accent);
 }
 
 .permission-freq-count {
@@ -514,6 +543,17 @@ body {
   color: var(--danger);
 }
 
+.permission-freq-group-ask .permission-freq-group-toggle code {
+  color: var(--accent);
+}
+
 .permission-freq-row-nested {
   padding-left: 1.5rem;
+}
+
+.permission-freq-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.2rem 0.5rem;
 }

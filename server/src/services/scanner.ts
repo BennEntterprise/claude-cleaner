@@ -119,7 +119,8 @@ export async function scanDirectories(
       (p) =>
         p.settings?.permissions &&
         ((p.settings.permissions.allow?.length ?? 0) > 0 ||
-          (p.settings.permissions.deny?.length ?? 0) > 0)
+          (p.settings.permissions.deny?.length ?? 0) > 0 ||
+          (p.settings.permissions.ask?.length ?? 0) > 0)
     ).length,
   };
 
