@@ -6,6 +6,7 @@ export type PermissionKind = "allow" | "deny" | "ask";
 export interface PermissionEntry {
   permission: string;
   count: number;
+  projectNames: string[];
 }
 
 export interface PermissionGroup {
@@ -38,21 +39,27 @@ function groupPermissions(
   projects: ProjectInfo[],
   key: PermissionKind,
 ): PermissionGroup[] {
-  const counts = new Map<string, number>();
+  const counts = new Map<string, { count: number; projectNames: string[] }>();
   for (const project of projects) {
     const perms = project.settings?.permissions?.[key];
     if (!perms) continue;
     for (const perm of perms) {
-      counts.set(perm, (counts.get(perm) ?? 0) + 1);
+      const existing = counts.get(perm);
+      if (existing) {
+        existing.count++;
+        existing.projectNames.push(project.name);
+      } else {
+        counts.set(perm, { count: 1, projectNames: [project.name] });
+      }
     }
   }
 
   // Group entries by tool prefix
   const groups = new Map<string, PermissionEntry[]>();
-  for (const [permission, count] of counts) {
+  for (const [permission, { count, projectNames }] of counts) {
     const tool = extractTool(permission);
     const list = groups.get(tool) ?? [];
-    list.push({ permission, count });
+    list.push({ permission, count, projectNames });
     groups.set(tool, list);
   }
 

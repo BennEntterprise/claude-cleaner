@@ -30,7 +30,7 @@ function GroupSection({
     return (
       <div className="permission-freq-row">
         <code>{entry.permission}</code>
-        <span className="permission-freq-count">
+        <span className="permission-freq-count tooltip-trigger" data-tooltip={entry.projectNames.join("\n")}>
           {entry.count} {entry.count === 1 ? "project" : "projects"}
         </span>
       </div>
@@ -53,7 +53,7 @@ function GroupSection({
         group.entries.map((entry) => (
           <div key={entry.permission} className="permission-freq-row permission-freq-row-nested">
             <code>{entry.permission}</code>
-            <span className="permission-freq-count">
+            <span className="permission-freq-count tooltip-trigger" data-tooltip={entry.projectNames.join("\n")}>
               {entry.count} {entry.count === 1 ? "project" : "projects"}
             </span>
           </div>

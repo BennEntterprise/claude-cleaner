@@ -557,3 +557,32 @@ body {
   font-style: italic;
   padding: 0.2rem 0.5rem;
 }
+
+/* Tooltip */
+.tooltip-trigger {
+  position: relative;
+  cursor: default;
+}
+
+.tooltip-trigger::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: pre;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s 0.3s;
+  z-index: 10;
+}
+
+.tooltip-trigger:hover::after {
+  opacity: 1;
+}
