@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { ProjectInfo } from "shared/schemas.js";
+import { useMemo, useState } from "react";
+import type { GlobalConfig, ProjectInfo } from "shared/schemas.js";
 import {
   usePermissionFrequency,
   type PermissionTreeNode,
@@ -9,6 +9,7 @@ import {
 
 interface PermissionFrequencyProps {
   projects: ProjectInfo[];
+  globalConfig: GlobalConfig | null;
 }
 
 const SECTION_LABELS: Record<PermissionKind, string> = {
@@ -17,19 +18,53 @@ const SECTION_LABELS: Record<PermissionKind, string> = {
   ask: "Ask",
 };
 
+/** Build a set of all global permission strings (merged settings + local) per kind */
+function useGlobalPermissions(globalConfig: GlobalConfig | null) {
+  return useMemo(() => {
+    const result: Record<PermissionKind, Set<string>> = {
+      allow: new Set(),
+      deny: new Set(),
+      ask: new Set(),
+    };
+    if (!globalConfig) return result;
+
+    for (const kind of ["allow", "deny", "ask"] as const) {
+      for (const perm of globalConfig.settings?.permissions?.[kind] ?? []) {
+        result[kind].add(perm);
+      }
+      for (const perm of globalConfig.settingsLocal?.permissions?.[kind] ?? []) {
+        result[kind].add(perm);
+      }
+    }
+    return result;
+  }, [globalConfig]);
+}
+
 function EntryRow({
   entry,
   indent,
+  isGlobal,
 }: {
   entry: PermissionEntry;
   indent: number;
+  isGlobal: boolean;
 }) {
   return (
     <div
       className="permission-freq-row"
       style={{ paddingLeft: `${0.5 + indent}rem` }}
     >
-      <code>{entry.permission}</code>
+      <code>
+        {isGlobal && (
+          <span
+            className="permission-freq-global tooltip-trigger"
+            data-tooltip="Also in global config"
+          >
+            &#9733;{" "}
+          </span>
+        )}
+        {entry.permission}
+      </code>
       <span
         className="permission-freq-count tooltip-trigger"
         data-tooltip={entry.projectNames.join("\n")}
@@ -44,17 +79,26 @@ function TreeNode({
   node,
   variant,
   indent,
+  globalPerms,
 }: {
   node: PermissionTreeNode;
   variant: PermissionKind;
   indent: number;
+  globalPerms: Set<string>;
 }) {
   const [open, setOpen] = useState(false);
   const isSingleLeaf =
     node.children.length === 0 && node.entries.length === 1;
 
   if (isSingleLeaf) {
-    return <EntryRow entry={node.entries[0]} indent={indent} />;
+    const entry = node.entries[0];
+    return (
+      <EntryRow
+        entry={entry}
+        indent={indent}
+        isGlobal={globalPerms.has(entry.permission)}
+      />
+    );
   }
 
   return (
@@ -79,6 +123,7 @@ function TreeNode({
               node={child}
               variant={variant}
               indent={indent + 1}
+              globalPerms={globalPerms}
             />
           ))}
           {node.entries.map((entry) => (
@@ -86,6 +131,7 @@ function TreeNode({
               key={entry.permission}
               entry={entry}
               indent={indent + 1}
+              isGlobal={globalPerms.has(entry.permission)}
             />
           ))}
         </>
@@ -97,9 +143,11 @@ function TreeNode({
 function PermissionSection({
   nodes,
   variant,
+  globalPerms,
 }: {
   nodes: PermissionTreeNode[];
   variant: PermissionKind;
+  globalPerms: Set<string>;
 }) {
   const [open, setOpen] = useState(false);
   const entryCount = nodes.reduce((s, n) => s + n.totalEntryCount, 0);
@@ -122,6 +170,7 @@ function PermissionSection({
               node={node}
               variant={variant}
               indent={0}
+              globalPerms={globalPerms}
             />
           ))
         ) : (
@@ -131,10 +180,14 @@ function PermissionSection({
   );
 }
 
-export function PermissionFrequency({ projects }: PermissionFrequencyProps) {
+export function PermissionFrequency({
+  projects,
+  globalConfig,
+}: PermissionFrequencyProps) {
   const [open, setOpen] = useState(false);
   const [depth, setDepth] = useState(1);
   const frequency = usePermissionFrequency(projects, depth);
+  const globalPerms = useGlobalPermissions(globalConfig);
 
   const totalUnique = (["allow", "deny", "ask"] as const).reduce(
     (s, k) =>
@@ -177,9 +230,21 @@ export function PermissionFrequency({ projects }: PermissionFrequencyProps) {
             </button>
           </div>
           <div className="permission-freq-body">
-            <PermissionSection nodes={frequency.allow} variant="allow" />
-            <PermissionSection nodes={frequency.deny} variant="deny" />
-            <PermissionSection nodes={frequency.ask} variant="ask" />
+            <PermissionSection
+              nodes={frequency.allow}
+              variant="allow"
+              globalPerms={globalPerms.allow}
+            />
+            <PermissionSection
+              nodes={frequency.deny}
+              variant="deny"
+              globalPerms={globalPerms.deny}
+            />
+            <PermissionSection
+              nodes={frequency.ask}
+              variant="ask"
+              globalPerms={globalPerms.ask}
+            />
           </div>
         </>
       )}

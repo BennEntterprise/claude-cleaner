@@ -184,6 +184,62 @@ body {
   margin-bottom: 0.25rem;
 }
 
+/* Config Provenance */
+.config-provenance {
+  margin-bottom: 0.75rem;
+}
+
+.config-provenance-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+}
+
+.config-provenance-toggle:hover {
+  color: var(--text);
+}
+
+.config-provenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  padding-left: 1rem;
+}
+
+.config-provenance-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.config-provenance-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 5rem;
+}
+
+.config-provenance-path {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.config-provenance-perms {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 /* Project List */
 .project-list {
   display: flex;
@@ -481,6 +537,11 @@ body {
 
 .permission-freq-ask .permission-freq-row {
   background: #58a6ff08;
+}
+
+.permission-freq-global {
+  color: var(--warning);
+  font-style: normal;
 }
 
 .permission-freq-row code {

@@ -50,9 +50,17 @@ export type ScanResponse = z.infer<typeof ScanResponseSchema>;
 
 // --- Global config schema ---
 
+export const ConfigSourceSchema = z.object({
+  label: z.string(),
+  path: z.string(),
+  settings: SettingsSchema.nullable(),
+});
+export type ConfigSource = z.infer<typeof ConfigSourceSchema>;
+
 export const GlobalConfigSchema = z.object({
   claudeMdContent: z.string().nullable(),
   settings: SettingsSchema.nullable(),
   settingsLocal: SettingsSchema.nullable(),
+  sources: z.array(ConfigSourceSchema),
 });
 export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;

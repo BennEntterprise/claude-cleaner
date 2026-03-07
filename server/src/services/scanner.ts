@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import type { ProjectInfo, Stats, Settings } from "shared/schemas.js";
+import type { ProjectInfo, Stats, Settings, ConfigSource } from "shared/schemas.js";
 
 const CLAUDE_MD_MAX_LENGTH = 2000;
 
@@ -127,14 +127,67 @@ export async function scanDirectories(
   return { projects: allProjects, stats };
 }
 
+/** Detect thefoundation source files that compose the global settings.json */
+async function detectConfigSources(): Promise<ConfigSource[]> {
+  const sources: ConfigSource[] = [];
+  const syncScript = path.join(
+    os.homedir(),
+    "thefoundation/shell-settings/claude-settings/sync-claude-settings.sh",
+  );
+
+  if (!(await fileExists(syncScript))) {
+    return sources;
+  }
+
+  const settingsDir = path.join(
+    os.homedir(),
+    "thefoundation/shell-settings/claude-settings",
+  );
+
+  // Read base config
+  const basePath = path.join(settingsDir, "settings.base.json");
+  const baseSettings = (await readJsonSafe(basePath)) as Settings | null;
+  if (baseSettings) {
+    sources.push({ label: "Base", path: basePath, settings: baseSettings });
+  }
+
+  // Detect active profile from hostname
+  const hostname = os.hostname();
+  let profile = "";
+  if (hostname.startsWith("Grallion")) profile = "personal";
+  else if (hostname.startsWith("Avalon")) profile = "revobo";
+
+  if (profile) {
+    const profilePath = path.join(settingsDir, `settings.${profile}.json`);
+    const profileSettings = (await readJsonSafe(profilePath)) as Settings | null;
+    if (profileSettings) {
+      sources.push({
+        label: `Profile (${profile})`,
+        path: profilePath,
+        settings: profileSettings,
+      });
+    }
+  }
+
+  // settings.local.json is also a source
+  const localPath = path.join(os.homedir(), ".claude", "settings.local.json");
+  const localSettings = (await readJsonSafe(localPath)) as Settings | null;
+  if (localSettings) {
+    sources.push({ label: "Local", path: localPath, settings: localSettings });
+  }
+
+  return sources;
+}
+
 export async function getGlobalConfig() {
   const claudeHome = path.join(os.homedir(), ".claude");
 
-  const [claudeMdContent, settings, settingsLocal] = await Promise.all([
+  const [claudeMdContent, settings, settingsLocal, sources] = await Promise.all([
     readTextSafe(path.join(claudeHome, "CLAUDE.md")),
     readJsonSafe(path.join(claudeHome, "settings.json")) as Promise<Settings | null>,
     readJsonSafe(path.join(claudeHome, "settings.local.json")) as Promise<Settings | null>,
+    detectConfigSources(),
   ]);
 
-  return { claudeMdContent, settings, settingsLocal };
+  return { claudeMdContent, settings, settingsLocal, sources };
 }

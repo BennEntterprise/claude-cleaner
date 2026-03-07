@@ -1,5 +1,5 @@
 import { match } from "ts-pattern";
-import type { ScanResponse } from "shared/schemas.js";
+import type { ScanResponse, GlobalConfig as GlobalConfigType } from "shared/schemas.js";
 import { useScan } from "./hooks/useScan";
 import { useProjectFilter } from "./hooks/useProjectFilter";
 import { ScanForm } from "./components/ScanForm";
@@ -9,7 +9,13 @@ import { FilterBar } from "./components/FilterBar";
 import { ProjectList } from "./components/ProjectList";
 import { PermissionFrequency } from "./components/PermissionFrequency";
 
-function FilteredResults({ data }: { data: ScanResponse }) {
+function FilteredResults({
+  data,
+  globalConfig,
+}: {
+  data: ScanResponse;
+  globalConfig: GlobalConfigType | null;
+}) {
   const { activeFilters, filtered, filteredStats, isFiltering, toggle, clearAll } =
     useProjectFilter(data.projects, data.stats);
 
@@ -23,7 +29,7 @@ function FilteredResults({ data }: { data: ScanResponse }) {
         onToggle={toggle}
         onClearAll={clearAll}
       />
-      <PermissionFrequency projects={filtered} />
+      <PermissionFrequency projects={filtered} globalConfig={globalConfig} />
       <FilterBar
         activeFilters={activeFilters}
         onRemove={toggle}
@@ -64,7 +70,7 @@ export default function App() {
           </p>
         ))
         .with({ status: "results" }, ({ data }) => (
-          <FilteredResults data={data} />
+          <FilteredResults data={data} globalConfig={globalConfig} />
         ))
         .with({ status: "error" }, ({ message }) => (
           <div className="error-message">Error: {message}</div>
