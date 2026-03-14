@@ -11,6 +11,8 @@
 - [x] ts-pattern for exhaustive state matching in UI
 - [x] Filter/search within scan results (clickable stat cards + badge chips toggle AND filters)
 - [x] Permission frequency analysis: show which permissions are most commonly allowed/denied across projects
+- [x] Tab navigation: break single-page layout into Overview, Permissions, and Sessions tabs
+- [x] Session metadata display: read sessions-index.json, show session stats + cards with project name, branch, prompt preview, message count, dates
 
 ## In Progress
 
@@ -20,5 +22,4 @@
 - [ ] Diff view: compare project CLAUDE.md against global CLAUDE.md
 - [ ] Deep scan mode: recurse beyond 1 level for nested project structures
 - [ ] Export scan results as JSON
-- [ ] Session metadata display: show last-used dates from session .jsonl files
 - [ ] Bulk operations: apply a settings change across multiple projects at once
