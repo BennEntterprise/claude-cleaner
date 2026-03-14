@@ -64,3 +64,40 @@ export const GlobalConfigSchema = z.object({
   sources: z.array(ConfigSourceSchema),
 });
 export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;
+
+// --- Session schemas ---
+
+export const SessionEntrySchema = z.object({
+  sessionId: z.string(),
+  firstPrompt: z.string(),
+  messageCount: z.number(),
+  created: z.string(),
+  modified: z.string(),
+  gitBranch: z.string().nullable(),
+  projectPath: z.string(),
+  isSidechain: z.boolean(),
+});
+export type SessionEntry = z.infer<typeof SessionEntrySchema>;
+
+export const EnrichedSessionSchema = SessionEntrySchema.extend({
+  projectName: z.string(),
+});
+export type EnrichedSession = z.infer<typeof EnrichedSessionSchema>;
+
+export const SessionStatsSchema = z.object({
+  totalSessions: z.number(),
+  projectsWithSessions: z.number(),
+  avgMessagesPerSession: z.number(),
+});
+export type SessionStats = z.infer<typeof SessionStatsSchema>;
+
+export const SessionsRequestSchema = z.object({
+  projectPaths: z.array(z.string().min(1)).min(1),
+});
+export type SessionsRequest = z.infer<typeof SessionsRequestSchema>;
+
+export const SessionsResponseSchema = z.object({
+  sessions: z.array(EnrichedSessionSchema),
+  stats: SessionStatsSchema,
+});
+export type SessionsResponse = z.infer<typeof SessionsResponseSchema>;

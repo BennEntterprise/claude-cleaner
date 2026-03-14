@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import type { ProjectInfo, Stats, Settings, ConfigSource } from "shared/schemas.js";
+import type { ProjectInfo, Stats, Settings, ConfigSource, EnrichedSession, SessionsResponse } from "shared/schemas.js";
 
 const CLAUDE_MD_MAX_LENGTH = 2000;
 
@@ -125,6 +125,77 @@ export async function scanDirectories(
   };
 
   return { projects: allProjects, stats };
+}
+
+interface SessionIndexFile {
+  version: number;
+  entries: Array<{
+    sessionId: string;
+    firstPrompt: string;
+    messageCount: number;
+    created: string;
+    modified: string;
+    gitBranch: string | null;
+    projectPath: string;
+    isSidechain: boolean;
+  }>;
+}
+
+export async function getSessionsForProjects(
+  projectPaths: string[],
+): Promise<SessionsResponse> {
+  const results = await Promise.all(
+    projectPaths.map(async (projectPath) => {
+      const encoded = encodePath(projectPath);
+      const indexPath = path.join(
+        os.homedir(),
+        ".claude",
+        "projects",
+        encoded,
+        "sessions-index.json",
+      );
+
+      const raw = (await readJsonSafe(indexPath)) as SessionIndexFile | null;
+      if (!raw?.entries) return [];
+
+      const projectName = path.basename(projectPath);
+      return raw.entries
+        .filter((e) => !e.isSidechain)
+        .map((e): EnrichedSession => ({
+          sessionId: e.sessionId,
+          firstPrompt: e.firstPrompt,
+          messageCount: e.messageCount,
+          created: e.created,
+          modified: e.modified,
+          gitBranch: e.gitBranch ?? null,
+          projectPath: e.projectPath,
+          isSidechain: e.isSidechain,
+          projectName,
+        }));
+    }),
+  );
+
+  const sessions = results
+    .flat()
+    .sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime());
+
+  const projectsWithSessions = new Set(
+    sessions.map((s) => s.projectPath),
+  ).size;
+
+  const totalMessages = sessions.reduce((sum, s) => sum + s.messageCount, 0);
+
+  return {
+    sessions,
+    stats: {
+      totalSessions: sessions.length,
+      projectsWithSessions,
+      avgMessagesPerSession:
+        sessions.length > 0
+          ? Math.round((totalMessages / sessions.length) * 10) / 10
+          : 0,
+    },
+  };
 }
 
 /** Detect thefoundation source files that compose the global settings.json */
