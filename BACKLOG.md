@@ -13,13 +13,13 @@
 - [x] Permission frequency analysis: show which permissions are most commonly allowed/denied across projects
 - [x] Tab navigation: break single-page layout into Overview, Permissions, and Sessions tabs
 - [x] Session metadata display: read sessions-index.json, show session stats + cards with project name, branch, prompt preview, message count, dates
+- [x] Diff view: compare project configs (permissions + CLAUDE.md) against global config with unified diff and set-based permission analysis
 
 ## In Progress
 
 ## Upcoming
 
 - [ ] "Lift up" feature: promote repeated project-level settings to user-level config
-- [ ] Diff view: compare project CLAUDE.md against global CLAUDE.md
 - [ ] Deep scan mode: recurse beyond 1 level for nested project structures
 - [ ] Export scan results as JSON
 - [ ] Bulk operations: apply a settings change across multiple projects at once

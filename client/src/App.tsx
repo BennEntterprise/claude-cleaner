@@ -13,6 +13,7 @@ import { FilterBar } from "./components/FilterBar";
 import { ProjectList } from "./components/ProjectList";
 import { PermissionFrequency } from "./components/PermissionFrequency";
 import { SessionsView } from "./components/SessionsView";
+import { DiffView } from "./components/DiffView";
 
 function ResultsTabs({
   data,
@@ -68,6 +69,9 @@ function ResultsTabs({
             projectPaths={projectPaths}
             onFetch={sessions.fetchSessions}
           />
+        ))
+        .with("diffs", () => (
+          <DiffView projects={filtered} globalConfig={globalConfig} />
         ))
         .exhaustive()}
     </>

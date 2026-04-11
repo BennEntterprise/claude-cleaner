@@ -1,1 +1,1 @@
-export type TabKey = "overview" | "permissions" | "sessions";
+export type TabKey = "overview" | "permissions" | "sessions" | "diffs";

@@ -20,6 +20,7 @@
 
 ### Strategy
 - **`client/src/App.tsx`** — Uses `ts-pattern` for exhaustive pattern matching on the scan state, selecting different rendering strategies based on the current state variant.
+- **`client/src/hooks/useDiffAnalysis.ts`** — Uses two distinct diff algorithms (set-based intersection/difference for permissions, line-level unified diff via the `diff` package for CLAUDE.md text) selected by data type, producing a unified `ProjectDiff` result.
 - **`client/src/hooks/useProjectFilter.ts`** — `PREDICATES` record maps each `FilterKey` to a predicate function, enabling runtime strategy selection for filtering projects by different criteria.
 
 ### Template Method

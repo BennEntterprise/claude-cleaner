@@ -4,6 +4,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "permissions", label: "Permissions" },
   { key: "sessions", label: "Sessions" },
+  { key: "diffs", label: "Diffs" },
 ];
 
 export function TabNav({
